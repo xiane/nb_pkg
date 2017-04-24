@@ -1,0 +1,33 @@
+!TO_DO - All of things are not implimented now!
+
+    Starter package for new beginner
+
+This package is designed to build android easily.
+Don't scare about toolchian, repo and etc.
+This package just create all of things.
+
+Just typing two commands.
+
+$ git clone https://github.com/nb_pkg.git
+$ ./start.sh
+
+Write android image to media (eMMC/SD).
+WARNNING!! You have to check where is media. In here, we supposed it to /dev/sdc.
+
+$ ./write_img.sh
+
+!TO_DO
+
+Advanced commands
+
+Build u-boot
+
+$ ./cmd/build_uboot.sh
+
+Build kernel
+
+$ ./cmd/build_kernel.sh
+
+Build Android
+
+$ ./cmd/build_android.sh
