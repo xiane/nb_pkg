@@ -8,7 +8,7 @@ This package just create all of things.
 
 Just typing two commands.
 
-$ git clone https://github.com/nb_pkg.git
+$ git clone https://github.com/xiane/nb_pkg.git
 $ ./start.sh
 
 Write android image to media (eMMC/SD).
