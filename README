@@ -6,6 +6,12 @@ This package is designed to build android easily.
 Don't scare about toolchian, repo and etc.
 This package just create all of things.
 
+If you don't have git, please install the git and set the basic git configuration.
+
+$ sudo apt -y install git
+$ git config --global user.email "you@example.com"
+$ git config --global user.name "Your Name"
+
 Just typing two commands.
 
 $ git clone https://github.com/xiane/nb_pkg.git
