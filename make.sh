@@ -1,26 +1,60 @@
 #! /bin/bash
 
 OPT_TOOLCHAIN=/opt/toolchains
-ANDROID_CROSS_COMPILE=arm-eabi-4.6
+XU4_ANDROID_TOOLCHAIN=arm-eabi-4.6
+#TODO
+C2_ANDROID_TOOLCHAIN=gcc-linaro-aarch64-linux-gnu-4.9_linux
+C2_KERNEL_TOOLCHAIN=
+C1_TOOLCHAIN=
+ANDROID_CROSS_COMPILE=
 ROOT_PATH=`pwd`
 CMD_PATH=${ROOT_PATH}/cmd
 LOCAL_TOOLCHAIN=${ROOT_PATH}/toolchain
 CORE=`cat /proc/cpuinfo | grep cores | wc -l`
 
 make() {
-	option='a'
-	if ! [ $# -lt 1 ]
+	option="a"
+	target_board="odroid"
+
+	echo $#
+	#check target board name
+	if [ $# -lt 1 ]
 	then
-		case "$1" in
-			"help")
-				echo "Usage: ./make.sh [help|a|"
-				exit 0
-				;;
-				#TODO
-		esac
+		echo "Usage: ./make.sh <Target Board Name> [help|u|k|n|a]"
+		exit 0
 	fi
 
-	if [ $option == 'a' ]
+	case $1 in
+		"odroidxu4")
+			target_board="xu4"
+			;;
+		"odroidc2")
+			taget_board="c2"
+			;;
+		"odroidc1")
+			target_board="c1"
+			;;
+		*)
+			echo "I couldn't identify your board."
+			echo "Please check your board name."
+			exit 0
+			;;
+	esac
+
+	#TODO
+	case $target_board in
+		"xu4")
+			ANDROID_CROSS_COMPILE=${XU4_ANDROID_TOOLCHAIN}
+			;;
+		"c2")
+			ANDROID_CROSS_COMPILE=${C2_ANDROID_TOOLCHAIN}
+			;;
+		"c1")
+			ANDROID_CROSS_COMPILE=${C1_TOOLCHAIN}
+			;;
+	esac
+
+	if [ $option == "a" ]
 	then
 		install_dependency_packages
 		install_android_toolchain
@@ -61,6 +95,7 @@ install_dependency_packages() {
 				sudo apt-get update
 			fi
 
+            # reference : https://source.android.com/source/initializing
 			case "$RELEASE" in
 				"14.04")
 					sudo apt -y install wget curl oracle-java6-installer \
@@ -96,7 +131,7 @@ install_android_toolchain() {
 	then
 		echo "Download toolchain."
 		mkdir ${LOCAL_TOOLCHAIN}
-		wget http://dn.odroid.com/ODROID-XU/compiler/arm-eabi-4.6.tar.gz \
+		wget http://dn.odroid.com/${ANDROID_CROSS_COMPILE}.tar.gz \
 			-O ${LOCAL_TOOLCHAIN}/${ANDROID_CROSS_COMPILE}.tar.gz
 		sudo tar xvfz ${LOCAL_TOOLCHAIN}/${ANDROID_CROSS_COMPILE}.tar.gz -C ${OPT_TOOLCHAIN}
 		echo "Toolchain install is complete."

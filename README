@@ -6,23 +6,25 @@ This package is designed to build android easily.
 Don't scare about toolchian, repo and etc.
 This package just create all of things.
 
+We support a ODROID-XU4. and we will support ODROID-C2, ODROID-C1+.
+
 If you don't have git, please install the git and set the basic git configuration.
 
 $ sudo apt -y install git
 $ git config --global user.email "you@example.com"
 $ git config --global user.name "Your Name"
 
-Just typing two commands.
+Just typing two commands. In this case, we supposed that build image to odroid-xu4.
 
 $ git clone https://github.com/xiane/nb_pkg.git
-$ ./start.sh
+$ ./start.sh odroidxu4
 
 When it install the Oracle jdk6, you have to accept the license.
 
 Write android image to media (eMMC/SD).
 WARNNING!! You have to check where is media. In here, we supposed it to /dev/sdc.
 
-$ ./write_img.sh
+$ ./write_img.sh odroidxu4 /dev/sdc
 
 !TO_DO
 
