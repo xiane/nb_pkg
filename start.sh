@@ -2,10 +2,35 @@
 
 OPT_TOOLCHAIN=/opt/toolchains
 ANDROID_CROSS_COMPILE=arm-eabi-4.6
-export ROOT_PATH=`pwd`
+ROOT_PATH=`pwd`
+CMD_PATH=${ROOT_PATH}/cmd
 LOCAL_TOOLCHAIN=${ROOT_PATH}/toolchain
+CORE=`cat /proc/cpuinfo | grep cores | wc -l`
 
-# export environment variables
+make() {
+	option='a'
+	if ! [ $# -lt 1 ]
+	then
+		case "$1" in
+			"help")
+				echo "Usage: ./make.sh [help|a|"
+				exit 0
+				;;
+				#TODO
+		esac
+	fi
+
+	if [ $option == 'a' ]
+	then
+		install_dependency_packages
+		install_android_toolchain
+		install_repo
+
+		source ${CMD_PATH}/set_env.sh
+
+		build_android
+	fi
+}
 
 install_dependency_packages() {
 	_DISTRIBUTE=`lsb_release -i -s`
@@ -28,24 +53,24 @@ install_dependency_packages() {
 	# install dependency packages
 	case "$DISTRIBUTE" in
 		"ubuntu")
-            # check java version
-            if ! [ `java -version 2>&1 | grep -i openjdk` ]
-            then
-                # add java repository
-                sudo add-apt-repository -y ppa:webupd8team/java
-                sudo apt-get update
-            fi
+			# check java version
+			if ! [ `java -version 2>&1 | grep -i openjdk` ]
+			then
+				# add java repository
+				sudo add-apt-repository -y ppa:webupd8team/java
+				sudo apt-get update
+			fi
 
-            case "$RELEASE" in
-                "14.04")
-                    sudo apt -y install wget curl oracle-java6-installer \
-                        git-core gnupg flex bison gperf build-essential \
-                        zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 \
-                        lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z-dev ccache \
-                        libgl1-mesa-dev libxml2-utils xsltproc unzip
-                    ;;
-                "16.04")
-                    # TODO : check dependency
+			case "$RELEASE" in
+				"14.04")
+					sudo apt -y install wget curl oracle-java6-installer \
+						git-core gnupg flex bison gperf build-essential \
+						zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 \
+						lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z-dev ccache \
+						libgl1-mesa-dev libxml2-utils xsltproc unzip
+					;;
+				"16.04")
+					# TODO : check dependency
 					sudo apt -y install wget curl 
 					;;
 			esac
@@ -90,7 +115,7 @@ install_repo() {
 		mkdir ~/bin
 		#download
 		curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
-        export PATH=~/bin:$PATH
+		export PATH=~/bin:$PATH
 		chmod a+x ~/bin/repo
 	fi
 }
@@ -105,17 +130,11 @@ build_android() {
 
 	cd ${ROOT_PATH}/android
 	repo init -u https://github.com/hardkernel/android.git -b 5422_4.4.4_master
-	repo sync -j4
+	repo sync -j${core}
 	repo start 5422_4.4.4_master --all
 
 	echo "Build Android."
-	./build.sh odroidxu3 all -j4
+	./build.sh odroidxu3 all -j${CORE}
 }
 
-install_dependency_packages
-install_android_toolchain
-install_repo
-
-source ${ROOT_PATH}/set_env.sh
-
-build_android
+make
