@@ -77,12 +77,13 @@ install_repo() {
 		mkdir ~/bin
 		#download
 		curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+        export PATH=~/bin:$PATH
 		chmod a+x ~/bin/repo
 	fi
 }
 
 build_android() {
-	if [ -e ${ROOT_PATH}/android ]; then
+	if ! [ -d ${ROOT_PATH}/android ]; then
 		mkdir ${ROOT_PATH}/android
 	fi
 
