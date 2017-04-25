@@ -17,6 +17,8 @@ Just typing two commands.
 $ git clone https://github.com/xiane/nb_pkg.git
 $ ./start.sh
 
+When it install the Oracle jdk6, you have to accept the license.
+
 Write android image to media (eMMC/SD).
 WARNNING!! You have to check where is media. In here, we supposed it to /dev/sdc.
 

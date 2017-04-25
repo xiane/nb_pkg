@@ -28,12 +28,21 @@ install_dependency_packages() {
 	# install dependency packages
 	case "$DISTRIBUTE" in
 		"ubuntu")
-			case "$RELEASE" in
-				"14.04")
-					sudo apt -y install wget curl
-					;;
-				"16.04")
-					sudo apt -y install wget curl
+            # check java version
+            if ! [ `java -version 2>&1 | grep -i openjdk` ]
+            then
+                # add java repository
+                sudo add-apt-repository -y ppa:webupd8team/java
+                sudo apt-get update
+            fi
+
+            case "$RELEASE" in
+                "14.04")
+                    sudo apt -y install wget curl oracle-java6-installer
+                    ;;
+                "16.04")
+                    # TODO : check dependency
+					sudo apt -y install wget curl 
 					;;
 			esac
 			;;
