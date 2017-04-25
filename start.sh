@@ -38,7 +38,11 @@ install_dependency_packages() {
 
             case "$RELEASE" in
                 "14.04")
-                    sudo apt -y install wget curl oracle-java6-installer
+                    sudo apt -y install wget curl oracle-java6-installer \
+                        git-core gnupg flex bison gperf build-essential \
+                        zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 \
+                        lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z-dev ccache \
+                        libgl1-mesa-dev libxml2-utils xsltproc unzip
                     ;;
                 "16.04")
                     # TODO : check dependency
@@ -105,7 +109,7 @@ build_android() {
 	repo start 5422_4.4.4_master --all
 
 	echo "Build Android."
-	./build.sh odroidxu3 all
+	./build.sh odroidxu3 all -j4
 }
 
 install_dependency_packages
