@@ -12,37 +12,22 @@ CMD_PATH=${ROOT_PATH}/cmd
 LOCAL_TOOLCHAIN=${ROOT_PATH}/toolchain
 CORE=`cat /proc/cpuinfo | grep cores | wc -l`
 
+# initial argument settings
+OPTION="a"
+PRODUCT="odroid"
+
+message_help() {
+	echo "Usage: ./make.sh <Target Board Name> -[h|u|k|n|a]"
+    echo "   h : This help message"
+    echo "   u : build the u-boot"
+    echo "   k : build the kernel"
+    echo "   n : build the android"
+    echo "   a : build the all things"
+	exit 0
+}
+
 make() {
-	option="a"
-	target_board="odroid"
-
-	echo $#
-	#check target board name
-	if [ $# -lt 1 ]
-	then
-		echo "Usage: ./make.sh <Target Board Name> [help|u|k|n|a]"
-		exit 0
-	fi
-
-	case $1 in
-		"odroidxu4")
-			target_board="xu4"
-			;;
-		"odroidc2")
-			taget_board="c2"
-			;;
-		"odroidc1")
-			target_board="c1"
-			;;
-		*)
-			echo "I couldn't identify your board."
-			echo "Please check your board name."
-			exit 0
-			;;
-	esac
-
-	#TODO
-	case $target_board in
+	case $PRODUCT in
 		"xu4")
 			ANDROID_CROSS_COMPILE=${XU4_ANDROID_TOOLCHAIN}
 			;;
@@ -54,7 +39,8 @@ make() {
 			;;
 	esac
 
-	if [ $option == "a" ]
+    #TODO add option parsing
+	if [ $OPTION == "a" ]
 	then
 		install_dependency_packages
 		install_android_toolchain
@@ -95,7 +81,7 @@ install_dependency_packages() {
 				sudo apt-get update
 			fi
 
-            # reference : https://source.android.com/source/initializing
+			# reference : https://source.android.com/source/initializing
 			case "$RELEASE" in
 				"14.04")
 					sudo apt -y install wget curl oracle-java6-installer \
@@ -171,5 +157,78 @@ build_android() {
 	echo "Build Android."
 	./build.sh odroidxu3 all -j${CORE}
 }
+# Check target board name
+if [ $# -lt 1 ]
+then
+	message_help
+fi
+
+# Set target board
+case $1 in
+	"odroidxu4")
+		PRODUCT="xu4"
+		;;
+	"odroidc2")
+		PRODUCT="c2"
+		;;
+	"odroidc1")
+		PRODUCT="c1"
+		;;
+    "help")
+        message_help
+        ;;
+	*)
+		echo "I couldn't identify your board."
+		echo "Please check your board name."
+		exit 0
+		;;
+esac
+
+# set build option
+if [ $# -ge 2 ]
+then
+	OPTIND=2
+
+    OPTION=""
+	while getopts "ahknuAHKNU" arg; do
+		case "$arg" in
+			h|H) # help!
+				echo "help"
+				message_help
+				;;
+			a|A) # build all
+                if ! [[ $OPTION == *[aA]* ]]
+                then
+                    OPTION=a
+                fi
+				;;
+            u|U) # build u-boot
+                if ! [[ $OPTION == *[uUaA]* ]]
+                then
+                    OPTION+=u
+                fi
+                ;;
+            k|K) # build kernel
+                if ! [[ $OPTION == *[kKaA]* ]]
+                then
+                    OPTION+=k
+                fi
+                ;;
+            n|N) # build android
+                if ! [[ $OPTION == *[nNaA]* ]]
+                then
+                    OPTION+=n
+                fi
+                ;;
+		esac
+	done
+
+    # if check the option to u-boot and kernel and android,
+    # change option to a.
+    if [[ $OPTION == [ukn][ukn][ukn] ]]
+    then
+        OPTION=a
+    fi
+fi
 
 make
