@@ -117,7 +117,7 @@ install_android_toolchain() {
 	then
 		echo "Download toolchain."
 		mkdir ${LOCAL_TOOLCHAIN}
-		wget http://dn.odroid.com/${ANDROID_CROSS_COMPILE}.tar.gz \
+		wget http://dn.odroid.com/toolchains/${ANDROID_CROSS_COMPILE}.tar.gz \
 			-O ${LOCAL_TOOLCHAIN}/${ANDROID_CROSS_COMPILE}.tar.gz
 		sudo tar xvfz ${LOCAL_TOOLCHAIN}/${ANDROID_CROSS_COMPILE}.tar.gz -C ${OPT_TOOLCHAIN}
 		echo "Toolchain install is complete."
@@ -151,7 +151,7 @@ build_android() {
 
 	cd ${ROOT_PATH}/android
 	repo init -u https://github.com/hardkernel/android.git -b 5422_4.4.4_master
-	repo sync -j${core}
+	repo sync -j${CORE}
 	repo start 5422_4.4.4_master --all
 
 	echo "Build Android."
