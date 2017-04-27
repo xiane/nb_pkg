@@ -22,6 +22,8 @@ $ ./start.sh odroidxu4
 When it install the Oracle jdk6, you have to accept the license.
 
 Write android image to media (eMMC/SD).
+You can select the images from emmc, sd2emmc and sd.
+
 WARNNING!! You have to check where is media. In here, we supposed it to /dev/sdc.
 
 $ ./write_img.sh odroidxu4 emmc /dev/sdc

@@ -2,23 +2,31 @@
 
 OPT_TOOLCHAIN=/opt/toolchains
 XU4_ANDROID_TOOLCHAIN=arm-eabi-4.6
+XU4_UBOOT_TOOLCHAIN=gcc-linaro-arm-linux-gnueabihf-4.7-2013.04-20130415_linux
+
 #TODO
 C2_ANDROID_TOOLCHAIN=gcc-linaro-aarch64-linux-gnu-4.9_linux
 C2_KERNEL_TOOLCHAIN=
+
 C1_TOOLCHAIN=
-ANDROID_CROSS_COMPILE=
-ROOT_PATH=`pwd`
-CMD_PATH=${ROOT_PATH}/cmd
-LOCAL_TOOLCHAIN=${ROOT_PATH}/toolchain
+
+UBOOT_TOOLCHAIN=
+KERNEL_TOOLCHAIN=
+ANDROID_TOOLCHAIN=
+
+ROOT=`pwd`
+CMD_PATH=$ROOT/product
+LOCAL_TOOLCHAIN=$ROOT/toolchains
 CORE=`cat /proc/cpuinfo | grep cores | wc -l`
 
 # initial argument settings
-OPTION="a"
-PRODUCT="odroid"
+OPTION="ukn"
+PRODUCT=
+PLATFORM=android
 
 message_help() {
-	echo "Usage: ./make.sh <Target Board Name> -[h|u|k|n|a]"
-    echo "   h : This help message"
+	echo "Usage: ./make.sh <Target Board Name> (-p (android|ubuntu)) -[h|u|k|n|a]"
+	echo "   h : This help message"
     echo "   u : build the u-boot"
     echo "   k : build the kernel"
     echo "   n : build the android"
@@ -26,26 +34,38 @@ message_help() {
 	exit 0
 }
 
-make() {
+build() {
 	case $PRODUCT in
 		"xu4")
-			ANDROID_CROSS_COMPILE=${XU4_ANDROID_TOOLCHAIN}
+			ANDROID_TOOLCHAIN=${XU4_ANDROID_TOOLCHAIN}
+            UBOOT_TOOLCHAIN=${XU4_UBOOT_TOOLCHAIN}
 			;;
 		"c2")
-			ANDROID_CROSS_COMPILE=${C2_ANDROID_TOOLCHAIN}
+			ANDROID_TOOLCHAIN=${C2_ANDROID_TOOLCHAIN}
 			;;
 		"c1")
-			ANDROID_CROSS_COMPILE=${C1_TOOLCHAIN}
+			ANDROID_TOOLCHAIN=${C1_TOOLCHAIN}
 			;;
 	esac
 
-    #TODO add option parsing
-	if [ $OPTION == "a" ]
-	then
-		install_dependency_packages
-		install_android_toolchain
-		install_repo
+	# Check build environment
+	install_dependency_packages
+    install_uboot_toolchain
 
+    #TODO add option parsing
+    if [[ $OPTION == *u* ]]
+    then
+        build_uboot
+    fi
+
+	install_repo
+    #if [[ $OPTION == *k* ]]
+    #then
+    #fi
+
+	if [[ $OPTION == [kn][kn][kn] ]]
+	then
+		install_android_toolchain
 		source ${CMD_PATH}/set_env.sh
 
 		build_android
@@ -61,6 +81,7 @@ install_dependency_packages() {
 		"Ubuntu")
 			export DISTRIBUTE="ubuntu"
 			;;
+			# TODO support debian and other OS.
 		"Debian")
 			export DISTRIBUTE="debian"
 			;;
@@ -74,7 +95,7 @@ install_dependency_packages() {
 	case "$DISTRIBUTE" in
 		"ubuntu")
 			# check java version
-			if ! [ `java -version 2>&1 | grep -i openjdk` ]
+			if [ `java -version 2>&1 | grep -i openjdk` ]
 			then
 				# add java repository
 				sudo add-apt-repository -y ppa:webupd8team/java
@@ -84,7 +105,7 @@ install_dependency_packages() {
 			# reference : https://source.android.com/source/initializing
 			case "$RELEASE" in
 				"14.04")
-					sudo apt -y install wget curl oracle-java6-installer \
+					sudo apt -y install oracle-java6-installer \
 						git-core gnupg flex bison gperf build-essential \
 						zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 \
 						lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z-dev ccache \
@@ -110,18 +131,49 @@ checkNcreate_toolchain_path() {
 	fi
 }
 
+install_uboot_toolchain() {
+	checkNcreate_toolchain_path
+	if [ -n `which arm-linux-gnueabihf-gcc` ]
+	then
+		return
+	fi
+
+	if ! [ -d ${OPT_TOOLCHAIN}/${UBOOT_TOOLCHAIN} ]
+	then
+		echo "Download u-boot toolchain."
+		if ! [ -d ${LOCAL_TOOLCHAIN} ]
+		then mkdir ${LOCAL_TOOLCHAIN}
+		fi
+
+		pushd ${LOCAL_TOOLCHAIN}
+		wget http://dn.odroid.com/toolchains/${UBOOT_TOOLCHAIN}.tar.bz2 \
+			-O ${UBOOT_TOOLCHAIN}.tar.bz2
+		sudo tar jxf ${UBOOT_TOOLCHAIN}.tar.bz2 -C ${OPT_TOOLCHAIN}
+		popd
+
+		echo "U-boot toolchain install is completed."
+	else echo "U-boot toolchain is already installed."
+	fi
+}
+
 install_android_toolchain() {
 	checkNcreate_toolchain_path
 
-	if  ! [ -d ${OPT_TOOLCHAIN}/${ANDROID_CROSS_COMPILE} ]
+	if  ! [ -d ${OPT_TOOLCHAIN}/${ANDROID_TOOLCHAIN} ]
 	then
-		echo "Download toolchain."
-		mkdir ${LOCAL_TOOLCHAIN}
-		wget http://dn.odroid.com/toolchains/${ANDROID_CROSS_COMPILE}.tar.gz \
-			-O ${LOCAL_TOOLCHAIN}/${ANDROID_CROSS_COMPILE}.tar.gz
-		sudo tar xvfz ${LOCAL_TOOLCHAIN}/${ANDROID_CROSS_COMPILE}.tar.gz -C ${OPT_TOOLCHAIN}
-		echo "Toolchain install is complete."
-	else echo "Toolchian is already installed."
+		echo "Download android toolchain."
+		if ! [ ${LOCAL_TOOLCHAIN} ]
+		then mkdir ${LOCAL_TOOLCHAIN}
+		fi
+
+		pushd ${LOCAL_TOOLCHAIN}
+		wget http://dn.odroid.com/toolchains/${ANDROID_TOOLCHAIN}.tar.gz \
+			-O ${ANDROID_TOOLCHAIN}.tar.gz
+		sudo tar xvfz ${ANDROID_TOOLCHAIN}.tar.gz -C ${OPT_TOOLCHAIN}
+		popd
+
+		echo "Android toolchain install is complete."
+	else echo "Android toolchian is already installed."
 	fi
 }
 
@@ -141,22 +193,6 @@ install_repo() {
 	fi
 }
 
-build_android() {
-	if ! [ -d ${ROOT_PATH}/android ]; then
-		mkdir ${ROOT_PATH}/android
-	fi
-
-	echo "Download android full source tree."
-	echo "!!WARNNING!! Android full source code size is around 58GB!!"
-
-	cd ${ROOT_PATH}/android
-	repo init -u https://github.com/hardkernel/android.git -b 5422_4.4.4_master
-	repo sync -j${CORE}
-	repo start 5422_4.4.4_master --all
-
-	echo "Build Android."
-	./build.sh odroidxu3 all -j${CORE}
-}
 # Check target board name
 if [ $# -lt 1 ]
 then
@@ -190,7 +226,7 @@ then
 	OPTIND=2
 
     OPTION=""
-	while getopts "ahknuAHKNU" arg; do
+	while getopts "ahknuAHKNUp:P:" arg; do
 		case "$arg" in
 			h|H) # help!
 				echo "help"
@@ -199,36 +235,49 @@ then
 			a|A) # build all
                 if ! [[ $OPTION == *[aA]* ]]
                 then
-                    OPTION=a
+                    OPTION=ukn
                 fi
 				;;
             u|U) # build u-boot
-                if ! [[ $OPTION == *[uUaA]* ]]
+                if ! [[ $OPTION == *[uU]* ]]
                 then
                     OPTION+=u
                 fi
                 ;;
             k|K) # build kernel
-                if ! [[ $OPTION == *[kKaA]* ]]
+                if ! [[ $OPTION == *[kK]* ]]
                 then
                     OPTION+=k
                 fi
                 ;;
             n|N) # build android
-                if ! [[ $OPTION == *[nNaA]* ]]
+                if ! [[ $OPTION == *[nN]* ]]
                 then
                     OPTION+=n
                 fi
                 ;;
+			p|p) # set target platform
+				PLATFORM=$OPTARG
+				;;
 		esac
+		if [ -z $OPTION ]
+		then
+			case $PLATFORM in
+				android)
+					OPTION=ukn
+					;;
+				#ubuntu)
+				*)
+					echo "this platform is not supported."
+					exit 0
+					;;
+			esac
+		fi
 	done
-
-    # if check the option to u-boot and kernel and android,
-    # change option to a.
-    if [[ $OPTION == [ukn][ukn][ukn] ]]
-    then
-        OPTION=a
-    fi
 fi
 
-make
+source $ROOT/product/$PRODUCT/cmd/build_uboot.sh
+source $ROOT/product/$PRODUCT/cmd/build_android.sh
+
+CMD_PATH+=/${PRODUCT}/cmd
+build
