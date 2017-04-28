@@ -17,7 +17,7 @@ $ git config --global user.name "Your Name"
 Just typing two commands. In this case, we supposed that build image to odroid-xu4.
 
 $ git clone https://github.com/xiane/nb_pkg.git
-$ ./start.sh odroidxu4
+$ ./make.sh odroidxu4
 
 When it install the Oracle jdk6, you have to accept the license.
 
@@ -34,12 +34,12 @@ Advanced commands
 
 Build u-boot
 
-$ ./cmd/build_uboot.sh
+# ./make.sh -u
 
 Build kernel
 
-$ ./cmd/build_kernel.sh
+# ./make.sh -u -k
 
 Build Android
 
-$ ./cmd/build_android.sh
+# ./make.sh -u -n

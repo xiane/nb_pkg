@@ -59,22 +59,28 @@ build() {
     fi
 
 	install_repo
-    #if [[ $OPTION == *k* ]]
-    #then
-    #fi
+    install_android_toolchain
+    source ${CMD_PATH}/set_env.sh
 
-	if [[ $OPTION == [kn][kn][kn] ]]
+    if [[ $OPTION == *k* ]]
+    then
+        build_kernel
+    fi
+
+	if [[ $OPTION == *n* ]]
 	then
-		install_android_toolchain
-		source ${CMD_PATH}/set_env.sh
-
-		build_android
+		build_android 
 	fi
 }
 
 install_dependency_packages() {
 	_DISTRIBUTE=`lsb_release -i -s`
 	RELEASE=`lsb_release -r -s`
+
+	if ! [ -f $ROOT/.dep ]
+	then
+		return
+	fi
 
 	# check distributor
 	case "$_DISTRIBUTE" in
@@ -120,11 +126,13 @@ install_dependency_packages() {
 		"debian")
 			;;
 	esac
+	
+	touch $ROOT/.dep
 }
 
 # check & install toolchain
 checkNcreate_toolchain_path() {
-	echo "Check toolchain=$OPT_TOOLCHAIN"
+	echo "Check toolchain"
 	if ! [ -d $OPT_TOOLCHAIN ]
 	then
 		sudo mkdir -p $OPT_TOOLCHAIN
@@ -158,6 +166,11 @@ install_uboot_toolchain() {
 
 install_android_toolchain() {
 	checkNcreate_toolchain_path
+
+	if [ -n `which arm-eabi-gcc` ]
+	then
+		return
+	fi
 
 	if  ! [ -d ${OPT_TOOLCHAIN}/${ANDROID_TOOLCHAIN} ]
 	then
@@ -278,6 +291,7 @@ fi
 
 source $ROOT/product/$PRODUCT/cmd/build_uboot.sh
 source $ROOT/product/$PRODUCT/cmd/build_android.sh
+source $ROOT/product/$PRODUCT/cmd/build_kernel.sh
 
 CMD_PATH+=/${PRODUCT}/cmd
 build

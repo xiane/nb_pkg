@@ -9,12 +9,16 @@ build_android() {
 	echo "!!WARNNING!! Android full source code size is around 58GB!!"
 
 	pushd $ROOT/${PRODUCT}/${PLATFORM}/android
-	repo init -u https://github.com/hardkernel/android.git -b 5422_4.4.4_master
+	if ! [ -f $ROOT/.and ]
+	then
+		repo init -u https://github.com/hardkernel/android.git -b 5422_4.4.4_master && touch $ROOT/.and
+	fi
+
 	repo sync -j${CORE}
 	repo start 5422_4.4.4_master --all
 
 	echo "Build Android."
-	./build.sh odroidxu3 all -j${CORE}
+	./build.sh odroidxu3 platform -j${CORE}
 	popd
 
 }
