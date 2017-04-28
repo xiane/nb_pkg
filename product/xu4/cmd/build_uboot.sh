@@ -23,7 +23,7 @@ build_uboot() {
 	if ! [ -f $ROOT/.uboot ]
 	then
 		echo "Download u-boot source tree."
-		git clone https://github.com/hardkernel/u-boot.git -b odroidxu3-v2012.07 . && touch $ROOT/.uboot
+		git clone https://github.com/hardkernel/u-boot.git -b odroidxu3-v2012.07 $UBOOT_PATH && touch $ROOT/.uboot
 	else
 		git pull origin odroidxu3-v2012.07
 	fi

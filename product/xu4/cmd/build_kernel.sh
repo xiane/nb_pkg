@@ -25,7 +25,7 @@ build_kernel() {
 	if ! [ -f $ROOT/.kernel ]
 	then
 		echo "Download kernel source tree."
-		git clone --depth 1 https://github.com/hardkernel/linux.git -b odroidxu3-3.10.y-android . && touch $ROOT/.kernel
+		git clone --depth 1 https://github.com/hardkernel/linux.git -b odroidxu3-3.10.y-android $KERNEL_PATH && touch $ROOT/.kernel
 	else
 		git pull origin odroidxu3-3.10.y-android
 	fi

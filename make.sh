@@ -27,10 +27,10 @@ PLATFORM=android
 message_help() {
 	echo "Usage: ./make.sh <Target Board Name> (-p (android|ubuntu)) -[h|u|k|n|a]"
 	echo "   h : This help message"
-    echo "   u : build the u-boot"
-    echo "   k : build the kernel"
-    echo "   n : build the android"
-    echo "   a : build the all things"
+	echo "   u : build the u-boot"
+	echo "   k : build the kernel"
+	echo "   n : build the android"
+	echo "   a : build the all things"
 	exit 0
 }
 
@@ -38,7 +38,7 @@ build() {
 	case $PRODUCT in
 		"xu4")
 			ANDROID_TOOLCHAIN=${XU4_ANDROID_TOOLCHAIN}
-            UBOOT_TOOLCHAIN=${XU4_UBOOT_TOOLCHAIN}
+			UBOOT_TOOLCHAIN=${XU4_UBOOT_TOOLCHAIN}
 			;;
 		"c2")
 			ANDROID_TOOLCHAIN=${C2_ANDROID_TOOLCHAIN}
@@ -50,22 +50,22 @@ build() {
 
 	# Check build environment
 	install_dependency_packages
-    install_uboot_toolchain
+	install_uboot_toolchain
 
-    #TODO add option parsing
-    if [[ $OPTION == *u* ]]
-    then
-        build_uboot
-    fi
+	#TODO add option parsing
+	if [[ $OPTION == *u* ]]
+	then
+		build_uboot
+	fi
 
 	install_repo
-    install_android_toolchain
-    source ${CMD_PATH}/set_env.sh
+	install_android_toolchain
+	source ${CMD_PATH}/set_env.sh
 
-    if [[ $OPTION == *k* ]]
-    then
-        build_kernel
-    fi
+	if [[ $OPTION == *k* ]]
+	then
+		build_kernel
+	fi
 
 	if [[ $OPTION == *n* ]]
 	then
@@ -88,7 +88,7 @@ install_dependency_packages() {
 			export DISTRIBUTE="ubuntu"
 			;;
 			# TODO support debian and other OS.
-		"Debian")
+			"Debian")
 			export DISTRIBUTE="debian"
 			;;
 		*)
@@ -126,7 +126,7 @@ install_dependency_packages() {
 		"debian")
 			;;
 	esac
-	
+
 	touch $ROOT/.dep
 }
 
@@ -141,8 +141,9 @@ checkNcreate_toolchain_path() {
 
 install_uboot_toolchain() {
 	checkNcreate_toolchain_path
-	if [ -n `which arm-linux-gnueabihf-gcc` ]
+	if ! [ -z `which arm-linux-gnueabihf-gcc` ]
 	then
+		echo "uboot toolchains is existed."
 		return
 	fi
 
@@ -167,8 +168,9 @@ install_uboot_toolchain() {
 install_android_toolchain() {
 	checkNcreate_toolchain_path
 
-	if [ -n `which arm-eabi-gcc` ]
+	if ! [ -z `which arm-eabi-gcc` ]
 	then
+		echo "android toolchains is existed."
 		return
 	fi
 
@@ -223,9 +225,9 @@ case $1 in
 	"odroidc1")
 		PRODUCT="c1"
 		;;
-    "help")
-        message_help
-        ;;
+	"help")
+		message_help
+		;;
 	*)
 		echo "I couldn't identify your board."
 		echo "Please check your board name."
@@ -238,7 +240,7 @@ if [ $# -ge 2 ]
 then
 	OPTIND=2
 
-    OPTION=""
+	OPTION=""
 	while getopts "ahknuAHKNUp:P:" arg; do
 		case "$arg" in
 			h|H) # help!
@@ -246,29 +248,29 @@ then
 				message_help
 				;;
 			a|A) # build all
-                if ! [[ $OPTION == *[aA]* ]]
-                then
-                    OPTION=ukn
-                fi
+				if ! [[ $OPTION == *[aA]* ]]
+				then
+					OPTION=ukn
+				fi
 				;;
-            u|U) # build u-boot
-                if ! [[ $OPTION == *[uU]* ]]
-                then
-                    OPTION+=u
-                fi
-                ;;
-            k|K) # build kernel
-                if ! [[ $OPTION == *[kK]* ]]
-                then
-                    OPTION+=k
-                fi
-                ;;
-            n|N) # build android
-                if ! [[ $OPTION == *[nN]* ]]
-                then
-                    OPTION+=n
-                fi
-                ;;
+			u|U) # build u-boot
+				if ! [[ $OPTION == *[uU]* ]]
+				then
+					OPTION+=u
+				fi
+				;;
+			k|K) # build kernel
+				if ! [[ $OPTION == *[kK]* ]]
+				then
+					OPTION+=k
+				fi
+				;;
+			n|N) # build android
+				if ! [[ $OPTION == *[nN]* ]]
+				then
+					OPTION+=n
+				fi
+				;;
 			p|p) # set target platform
 				PLATFORM=$OPTARG
 				;;
@@ -280,7 +282,7 @@ then
 					OPTION=ukn
 					;;
 				#ubuntu)
-				*)
+					*)
 					echo "this platform is not supported."
 					exit 0
 					;;
