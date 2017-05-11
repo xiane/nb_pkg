@@ -62,6 +62,7 @@ build() {
 	install_android_toolchain
 	source ${CMD_PATH}/set_env.sh
 
+	download_repo
 	if [[ $OPTION == *k* ]]
 	then
 		build_kernel
@@ -71,6 +72,25 @@ build() {
 	then
 		build_android 
 	fi
+}
+
+download_repo() {
+	if ! [ -d $ROOT/${PRODUCT}/${PLATFORM}/android ]; then
+		mkdir -p $ROOT/${PRODUCT}/${PLATFORM}/android
+	fi
+
+	echo "Download android full source tree."
+	echo "!!WARNNING!! Android full source code size is around 58GB!!"
+
+	pushd $ROOT/${PRODUCT}/${PLATFORM}/android
+	if ! [ -f $ROOT/.and ]
+	then
+		repo init -u https://github.com/hardkernel/android.git -b 5422_4.4.4_master && touch $ROOT/.and
+	fi
+
+	repo sync -j${CORE}
+	repo start 5422_4.4.4_master --all
+	popd
 }
 
 install_dependency_packages() {
@@ -205,6 +225,7 @@ install_repo() {
 		curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
 		export PATH=~/bin:$PATH
 		chmod a+x ~/bin/repo
+		echo 'export PATH=~/bin:$PATH' >> ~/.bashrc
 	fi
 }
 
