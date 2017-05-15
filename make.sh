@@ -15,12 +15,12 @@ KERNEL_TOOLCHAIN=
 ANDROID_TOOLCHAIN=
 
 ROOT=`pwd`
-CMD_PATH=$ROOT/product
-LOCAL_TOOLCHAIN=$ROOT/toolchains
+CMD_PATH=${ROOT}/product
+LOCAL_TOOLCHAIN=${ROOT}/toolchains
 CORE=`cat /proc/cpuinfo | grep cores | wc -l`
 
 # initial argument settings
-OPTION="ukn"
+OPTION="ukni"
 PRODUCT=
 PLATFORM=android
 
@@ -30,12 +30,13 @@ message_help() {
 	echo "   u : build the u-boot"
 	echo "   k : build the kernel"
 	echo "   n : build the android"
+	echo "   i : build self install image"
 	echo "   a : build the all things"
 	exit 0
 }
 
 build() {
-	case $PRODUCT in
+	case ${PRODUCT} in
 		"xu4")
 			ANDROID_TOOLCHAIN=${XU4_ANDROID_TOOLCHAIN}
 			UBOOT_TOOLCHAIN=${XU4_UBOOT_TOOLCHAIN}
@@ -53,7 +54,7 @@ build() {
 	install_uboot_toolchain
 
 	#TODO add option parsing
-	if [[ $OPTION == *u* ]]
+	if [[ ${OPTION} == *u* ]]
 	then
 		build_uboot
 	fi
@@ -63,29 +64,36 @@ build() {
 	source ${CMD_PATH}/set_env.sh
 
 	download_repo
-	if [[ $OPTION == *k* ]]
+	if [[ ${OPTION} == *k* ]]
 	then
 		build_kernel
 	fi
 
-	if [[ $OPTION == *n* ]]
+	if [[ ${OPTION} == *n* ]]
 	then
 		build_android 
 	fi
+
+	if [[ ${OPTION} == *i* ]]
+	then
+		build_image
+	fi
+
+	# Create selfinstall image
 }
 
 download_repo() {
-	if ! [ -d $ROOT/${PRODUCT}/${PLATFORM}/android ]; then
-		mkdir -p $ROOT/${PRODUCT}/${PLATFORM}/android
+	if ! [ -d ${ROOT}/${PRODUCT}/${PLATFORM}/android ]; then
+		mkdir -p ${ROOT}/${PRODUCT}/${PLATFORM}/android
 	fi
 
 	echo "Download android full source tree."
 	echo "!!WARNNING!! Android full source code size is around 58GB!!"
 
-	pushd $ROOT/${PRODUCT}/${PLATFORM}/android
-	if ! [ -f $ROOT/.and ]
+	pushd ${ROOT}/${PRODUCT}/${PLATFORM}/android
+	if ! [ -f ${ROOT}/.and ]
 	then
-		repo init -u https://github.com/hardkernel/android.git -b 5422_4.4.4_master && touch $ROOT/.and
+		repo init -u https://github.com/hardkernel/android.git -b 5422_4.4.4_master && touch ${ROOT}/.and
 	fi
 
 	repo sync -j${CORE}
@@ -97,13 +105,13 @@ install_dependency_packages() {
 	_DISTRIBUTE=`lsb_release -i -s`
 	RELEASE=`lsb_release -r -s`
 
-	if ! [ -f $ROOT/.dep ]
+	if ! [ -f ${ROOT}/.dep ]
 	then
 		return
 	fi
 
 	# check distributor
-	case "$_DISTRIBUTE" in
+	case "${_DISTRIBUTE}" in
 		"Ubuntu")
 			export DISTRIBUTE="ubuntu"
 			;;
@@ -118,7 +126,7 @@ install_dependency_packages() {
 	esac
 
 	# install dependency packages
-	case "$DISTRIBUTE" in
+	case "${DISTRIBUTE}" in
 		"ubuntu")
 			# check java version
 			if [ `java -version 2>&1 | grep -i openjdk` ]
@@ -129,7 +137,7 @@ install_dependency_packages() {
 			fi
 
 			# reference : https://source.android.com/source/initializing
-			case "$RELEASE" in
+			case "${RELEASE}" in
 				"14.04")
 					sudo apt -y install oracle-java6-installer \
 						git-core gnupg flex bison gperf build-essential \
@@ -147,15 +155,15 @@ install_dependency_packages() {
 			;;
 	esac
 
-	touch $ROOT/.dep
+	touch ${ROOT}/.dep
 }
 
 # check & install toolchain
 checkNcreate_toolchain_path() {
 	echo "Check toolchain"
-	if ! [ -d $OPT_TOOLCHAIN ]
+	if ! [ -d ${OPT_TOOLCHAIN} ]
 	then
-		sudo mkdir -p $OPT_TOOLCHAIN
+		sudo mkdir -p ${OPT_TOOLCHAIN}
 	fi
 }
 
@@ -216,16 +224,16 @@ install_android_toolchain() {
 install_repo() {
 	REPO=`which repo`
 
-	if [ "$REPO" == "" ]
+	if [ "${REPO}" == "" ]
 	then
 		echo "Install repo"
 		# create repo bin
 		mkdir ~/bin
 		#download
 		curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
-		export PATH=~/bin:$PATH
+		export PATH=~/bin:${PATH}
 		chmod a+x ~/bin/repo
-		echo 'export PATH=~/bin:$PATH' >> ~/.bashrc
+		echo 'export PATH=~/bin:${PATH}' >> ~/.bashrc
 	fi
 }
 
@@ -262,45 +270,51 @@ then
 	OPTIND=2
 
 	OPTION=""
-	while getopts "ahknuAHKNUp:P:" arg; do
-		case "$arg" in
+	while getopts "ahknuiAHKNUIp:P:" arg; do
+		case "${arg}" in
 			h|H) # help!
 				echo "help"
 				message_help
 				;;
 			a|A) # build all
-				if ! [[ $OPTION == *[aA]* ]]
+				if ! [[ ${OPTION} == *[aA]* ]]
 				then
-					OPTION=ukn
+					OPTION=ukni
 				fi
 				;;
 			u|U) # build u-boot
-				if ! [[ $OPTION == *[uU]* ]]
+				if ! [[ ${OPTION} == *[uU]* ]]
 				then
 					OPTION+=u
 				fi
 				;;
 			k|K) # build kernel
-				if ! [[ $OPTION == *[kK]* ]]
+				if ! [[ ${OPTION} == *[kK]* ]]
 				then
 					OPTION+=k
 				fi
 				;;
 			n|N) # build android
-				if ! [[ $OPTION == *[nN]* ]]
+				if ! [[ ${OPTION} == *[nN]* ]]
 				then
 					OPTION+=n
 				fi
 				;;
+			i|I) # build self install image
+				if ! [[ ${OPTION} == *[iI]* ]]
+				then
+					OPTION+=i
+				fi
+				;;
 			p|p) # set target platform
-				PLATFORM=$OPTARG
+				PLATFORM=${OPTARG}
 				;;
 		esac
-		if [ -z $OPTION ]
+		if [ -z ${OPTION} ]
 		then
-			case $PLATFORM in
+			case ${PLATFORM} in
 				android)
-					OPTION=ukn
+					OPTION=ukni
 					;;
 				#ubuntu)
 					*)
@@ -312,9 +326,10 @@ then
 	done
 fi
 
-source $ROOT/product/$PRODUCT/cmd/build_uboot.sh
-source $ROOT/product/$PRODUCT/cmd/build_android.sh
-source $ROOT/product/$PRODUCT/cmd/build_kernel.sh
+source ${ROOT}/product/${PRODUCT}/cmd/build_uboot.sh
+source ${ROOT}/product/${PRODUCT}/cmd/build_android.sh
+source ${ROOT}/product/${PRODUCT}/cmd/build_kernel.sh
+source ${ROOT}/product/${PRODUCT}/cmd/build_image.sh
 
 CMD_PATH+=/${PRODUCT}/cmd
 build

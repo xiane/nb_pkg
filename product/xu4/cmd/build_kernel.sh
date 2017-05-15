@@ -9,7 +9,7 @@ build_kernel() {
 	then
 		echo "Kernel is already made."
 		echo "If you want to build it, please rm by following commands."
-		echo "$ rm $KERNEL_PATH/arch/arm/boot/Image"
+		echo "$ rm ${KERNEL_PATH}/arch/arm/boot/Image"
 		return
 	fi
 

@@ -28,10 +28,9 @@ esac
 
 OUT_PATH=`pwd`/${target}/${platform}/android/out/target/product/odroid${target}
 
-case $target in
+case ${target} in
     xu4) # <target_media> <root_path>
-        source product/${target}/cmd/make_img.sh $media `pwd`
-        sudo dd if=`pwd`/out/$target-${media}.img of=$3 bs=1M
+        sudo dd if=`pwd`/out/${target}-${media}.img of=$3 bs=1M
         ;;
     c2|c1)
         sudo dd if=${OUT_PATH}/selfinstall-odroid${target}.bin of=$3 bs=1M
