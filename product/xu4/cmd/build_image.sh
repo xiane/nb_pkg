@@ -1,7 +1,7 @@
 #!/bin/bash
 
 UBOOT_PATH=${ROOT}/${PRODUCT}/android/u-boot
-ANDROID_PATH=${ROOT}/${PRODUCT}/android/android/android
+ANDROID_PATH=${ROOT}/${PRODUCT}/android/android
 OUT=${ROOT}/out/
 RESOURCE=${ROOT}/product/${PRODUCT}/resource
 

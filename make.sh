@@ -93,10 +93,9 @@ download_repo() {
 	pushd ${ROOT}/${PRODUCT}/${PLATFORM}/android
 	if ! [ -f ${ROOT}/.and ]
 	then
-		repo init -u https://github.com/hardkernel/android.git -b 5422_4.4.4_master && touch ${ROOT}/.and
+		repo init -u https://github.com/hardkernel/android.git -b 5422_4.4.4_master
+		repo sync -j${CORE} && touch ${ROOT}/.and
 	fi
-
-	repo sync -j${CORE}
 	repo start 5422_4.4.4_master --all
 	popd
 }
