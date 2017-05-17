@@ -33,7 +33,7 @@ build_image() {
 	unzip update.zip
 	popd
 
-	sudo mkdir /media/${USER}/fat32
+	sudo mkdir -p /media/${USER}/fat32
 
 	sudo umount /media/${USER}/fat32
 	sudo losetup -d /dev/loop0
@@ -69,7 +69,7 @@ build_image() {
 	sleep 3
 	sudo umount /media/${USER}/fat32
 	# dump binary
-	sudo dd if=/dev/loop0 of=${OUT}/xu4-emmc.img count=1024000
+	sudo dd if=/dev/loop0 of=${OUT}/emmc.img count=1024000
 
 	# copy script for SD.
 	sudo mount /dev/loop0p1 /media/${USER}/fat32/
@@ -77,15 +77,15 @@ build_image() {
 	sleep 3
 	sudo umount /media/${USER}/fat32
 	# dump binary
-	sudo dd if=/dev/loop0 of=${OUT}/xu4-sd.img count=1024000
+	sudo dd if=/dev/loop0 of=${OUT}/sd.img count=1024000
 
 	# copy script for SD to eMMC.
 	sudo mount /dev/loop0p1 /media/${USER}/fat32/
-	sudo cp ${RESOURCE}/xu4-sd2emmc_boot.ini /media/${USER}/fat32/boot.ini
+	sudo cp ${RESOURCE}/sd2emmc_boot.ini /media/${USER}/fat32/boot.ini
 	sleep 3
 	sudo umount /media/${USER}/fat32
 	# dump binary
-	sudo dd if=/dev/loop0 of=${OUT}/xu4-sd2emmc.img count=1024000
+	sudo dd if=/dev/loop0 of=${OUT}/sd2emmc.img count=1024000
 
 	# umount loop device.
 	sudo losetup -d /dev/loop0
