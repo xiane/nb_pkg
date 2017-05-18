@@ -87,12 +87,12 @@ download_repo() {
 		mkdir -p ${ROOT}/${PRODUCT}/${PLATFORM}/android
 	fi
 
-	echo "Download android full source tree."
-	echo "!!WARNNING!! Android full source code size is around 58GB!!"
-
 	pushd ${ROOT}/${PRODUCT}/${PLATFORM}/android
 	if ! [ -f ${ROOT}/.and ]
 	then
+		echo "Download android full source tree."
+		echo "!!WARNNING!! Android full source code size is around 58GB!!"
+
 		repo init -u https://github.com/hardkernel/android.git -b 5422_4.4.4_master
 		repo sync -j${CORE} && touch ${ROOT}/.and
 	fi
