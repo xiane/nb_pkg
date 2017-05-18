@@ -1,7 +1,9 @@
 #! /bin/bash
 UBOOT_PATH=${ROOT}/${PRODUCT}/${PLATFORM}/u-boot
 
+	# xu4 used prebuilt u-boot binaries.
 build_uboot() {
+	:'
 	export PATH=${OPT_TOOLCHAIN}/${UBOOT_TOOLCHAIN}/bin:${PATH}
 	export CROSS_COMPILE=arm-linux-gnueabihf-
 
@@ -32,4 +34,5 @@ build_uboot() {
 	make odroid_config
 	make
 	popd
+	'
 }

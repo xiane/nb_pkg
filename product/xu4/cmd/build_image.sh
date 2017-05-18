@@ -11,7 +11,7 @@ build_image() {
 		mkdir -p ${OUT}/${PRODUCT}
 	fi
 
-	echo "Prepare the images"
+	echo "Prepare the images."
 
 	if ! [ -f ${ANDROID_PATH}/out/target/product/odroidxu3/update.zip ]
 	then
@@ -27,6 +27,7 @@ build_image() {
 	unzip update.zip
 	popd
 
+	echo "Start to build self install images."
 	sudo mkdir -p /media/${USER}/fat32
 
 	sudo umount /media/${USER}/fat32
@@ -65,6 +66,7 @@ build_image() {
 	# copy android images and u-boot binaries.
 	sudo cp ${OUT}/${PRODUCT}/update/* /media/${USER}/fat32/
 
+	echo "EMMC2EMMC image"
 	# copy script for eMMC.
 	sudo cp ${RESOURCE}/emmc_boot.ini /media/${USER}/fat32/boot.ini
 	sleep 3
@@ -72,6 +74,7 @@ build_image() {
 	# dump binary
 	sudo dd if=/dev/loop0 of=${OUT}/${PRODUCT}/emmc.img count=1024000 && sync
 
+	echo "SD2SD image"
 	# copy script for SD.
 	sudo mount /dev/loop0p1 /media/${USER}/fat32/
 	sudo cp ${RESOURCE}/sd_boot.ini /media/${USER}/fat32/boot.ini
@@ -80,6 +83,7 @@ build_image() {
 	# dump binary
 	sudo dd if=/dev/loop0 of=${OUT}/${PRODUCT}/sd.img count=1024000 && sync
 
+	echo "SD2EMC image"
 	# copy script for SD to eMMC.
 	sudo mount /dev/loop0p1 /media/${USER}/fat32/
 	sudo cp ${RESOURCE}/sd2emmc_boot.ini /media/${USER}/fat32/boot.ini
@@ -92,4 +96,6 @@ build_image() {
 	sudo losetup -d /dev/loop0
 
 	sudo rm /tmp/installer.img
+
+	echo "Build complete."
 }

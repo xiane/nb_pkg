@@ -16,5 +16,6 @@ build_kernel() {
 	pushd ${ANDROID_PATH}
 	echo "Build Kernel."
 	./build.sh odroidxu3 kernel -j${CORE}
+	echo "Kernel build complete."
 	popd
 }
