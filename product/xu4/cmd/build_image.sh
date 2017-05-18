@@ -50,10 +50,6 @@ build_image() {
 	# fusing & copy u-boot.
 	pushd ${UBOOT_PATH}
 	sudo ./sd_fusing.sh /dev/loop0 && sync
-	cp ./bl1.bin ${OUT}/${PRODUCT}/update/
-	cp ./bl2.bin ${OUT}/${PRODUCT}/update/
-	cp ./tzsw.bin ${OUT}/${PRODUCT}/update/
-	cp ./u-boot.bin ${OUT}/${PRODUCT}/update/
 	popd
 
 	# mount user fat partition.
