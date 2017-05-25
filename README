@@ -39,6 +39,10 @@ You have to check where is media. In here, we supposed it to /dev/sdc.
 
 $ ./write_img.sh odroidxu4 emmc /dev/sdc
 
+If you want to build OS by your hand, Please visit wiki.
+
+http://odroid.com/dokuwiki
+
 !TO_DO
 
 Advanced commands
