@@ -14,18 +14,28 @@ $ sudo apt -y install git
 $ git config --global user.email "you@example.com"
 $ git config --global user.name "Your Name"
 
-Just typing two commands. In this case, we supposed that build image to odroid-xu4.
+---- WARNING!! ----
+We've used Ubuntu 14.04 64bit with 8GB RAM since other newer versions had some issues while building the Android OS. 
+Downloaded Android full source code size is around 58GB. Prepare enough space before building the Android platform.
+--------------------
+
+Just typing three commands. In this case, we supposed that build image to odroid-xu4.
 
 $ git clone https://github.com/xiane/nb_pkg.git
-$ ./make.sh odroidxu4 (-a)
+$ cd nb_pkg
+$ ./make.sh odroidxu4 -p android (-a)
 
-When it install the Oracle jdk6, you have to accept the license.
+When you install the Oracle jdk6, you have to accept the license.
 
 Write android image to media (eMMC/SD).
 You can select the images from emmc, sd2emmc and sd.
-I recommand burning self install image to media via using etcher. (-https://etcher.io)
+I recommand burning self install image to media via etcher. (-https://etcher.io)
 
-WARNNING!! You have to check where is media. In here, we supposed it to /dev/sdc.
+Or, you can burning your media via command below.
+
+---- WARNING!! ----
+You have to check where is media. In here, we supposed it to /dev/sdc.
+--------------------
 
 $ ./write_img.sh odroidxu4 emmc /dev/sdc
 
@@ -35,16 +45,16 @@ Advanced commands
 
 Build u-boot
 
-$./make.sh {target_board} -u
+$./make.sh {target_board} -p (android/ubuntu) -u
 
 Build kernel
 
-$ ./make.sh {target_board} -k
+$ ./make.sh {target_board} -p (android/ubuntu) -k
 
 Build Android
 
-$ ./make.sh {target_board} -n
+$ ./make.sh {target_board} -p android -n
 
 Build self install image
 
-$ ./make.sh {target_board} -i
+$ ./make.sh {target_board} -p (android/ubuntu) -i
