@@ -263,6 +263,14 @@ case $1 in
 		;;
 esac
 
+#TODO support c1, c2
+if ! [ ${PRODUCT} == "xu4" ]
+then
+	echo "ODROID-C2 & ODROID-C1 are not supported yet."
+	echo "We just support ODROID-XU4 right now."
+	exit 0
+fi
+
 # set build option
 if [ $# -ge 2 ]
 then
